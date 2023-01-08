@@ -1,0 +1,50 @@
+_G.Farm = true
+function getend()
+    a = {}
+    for i,v in pairs(game:GetService("Workspace").Server.PointsMob:GetChildren()) do
+        if tonumber(v.Name) then
+            table.insert(a , tonumber(v.Name))
+                
+        end
+    end
+    return math.max(unpack(a))
+end
+
+_G.LastPoint = getend()
+
+while _G.Farm do wait()
+    pcall(function()
+
+local List = {}
+sort_t = {}
+for i,v in pairs(game:GetService("Workspace").Client.Mobs:GetChildren()) do
+    if v:IsA"Model" then
+        List[v.Name] = true
+    end
+end
+
+spawn(function()
+--
+for i,v in pairs(List) do
+   table.insert(sort_t , tonumber((game:GetService("Workspace").Client.Mobs[i].Head.Position - game:GetService("Workspace").Server.PointsMob[_G.LastPoint].Position).Magnitude))
+end
+--
+tpto = math.min(unpack(sort_t))
+
+for i,v in pairs(game:GetService("Workspace").Client.Mobs:GetChildren()) do
+        if (v.Head.Position - game:GetService("Workspace").Server.PointsMob[_G.LastPoint].Position).Magnitude == tpto then
+             game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0,0,4  )
+        end
+end
+end)
+
+local args = {
+    [1] = {
+        [1] = "MobAttack",
+        [2] = List
+    }
+}
+
+game:GetService("ReplicatedStorage").Remotes.Server:FireServer(unpack(args))
+end)
+end
